@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manajemen Data Pembeli - Kurir</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Login Modal -->
+    <div id="loginModal" class="login-modal">
+        <div class="login-content">
+            <div class="login-header">
+                <h2><i class="fas fa-user-lock"></i> Masuk ke Sistem</h2>
+                <p>Silakan masuk untuk mengakses aplikasi</p>
+            </div>
+            <form class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" required placeholder="Masukkan username">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" required placeholder="Masukkan password">
+                </div>
+                <button type="submit">Login</button>
+                <div id="loginMessage" class="login-message"></div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Cloud Settings Modal -->
+    <div id="cloudModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-cloud"></i> Pengaturan Cloud</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="cloud-section">
+                <h3><i class="fas fa-server"></i> Pilih Layanan Cloud</h3>
+                <div class="cloud-options">
+                    <div class="cloud-option active" data-service="firebase">
+                        <i class="fab fa-google"></i>
+                        <div>Firebase<br><small>(Gratis)</small></div>
+                    </div>
+                    <div class="cloud-option" data-service="supabase">
+                        <i class="fas fa-database"></i>
+                        <div>Supabase<br><small>(Gratis)</small></div>
+                    </div>
+                    <div class="cloud-option" data-service="none">
+                        <i class="fas fa-times"></i>
+                        <div>Tidak<br><small>(Local Only)</small></div>
+                    </div>
+                </div>
+                
+                <div class="cloud-config active" id="firebaseConfig">
+                    <div class="form-group">
+                        <label for="firebaseConfigJson">Konfigurasi Firebase (JSON)</label>
+                        <textarea id="firebaseConfigJson" rows="6" placeholder="Masukkan konfigurasi Firebase dari Firebase Console..."></textarea>
+                    </div>
+                    <small>Untuk mengaktifkan Firebase, Anda perlu membuat proyek Firebase dan menyalin konfigurasi dari Firebase Console.</small>
+                </div>
+                
+                <div class="sync-controls">
+                    <div class="sync-indicator">
+                        <div class="indicator" id="syncIndicator"></div>
+                        <span id="syncStatusText">Belum disinkronkan</span>
+                    </div>
+                    <button class="btn btn-primary" id="manualSyncBtn">
+                        <i class="fas fa-sync-alt"></i> Sinkronkan
+                    </button>
+                </div>
+            </div>
+            
+            <div class="apk-section">
+                <h3><i class="fas fa-mobile-alt"></i> Unduh Aplikasi APK</h3>
+                <div class="apk-instructions">
+                    <p>Anda bisa mengunduh aplikasi ini sebagai aplikasi Android (APK) untuk penggunaan offline:</p>
+                    <ol>
+                        <li>Klik tombol di bawah untuk mengunduh APK</li>
+                        <li>Instal aplikasi pada perangkat Android Anda</li>
+                        <li>Buka aplikasi dan login dengan akun Anda</li>
+                        <li>Semua data akan tersedia secara offline</li>
+                    </ol>
+                </div>
+                <button class="apk-download" id="downloadApkBtn">
+                    <i class="fas fa-download"></i> Unduh APK (Versi Offline)
+                </button>
+            </div>
+            
+            <div class="form-actions">
+                <button class="btn btn-danger" id="closeCloudModal">Tutup</button>
+                <button class="btn btn-success" id="saveCloudConfigBtn">Simpan</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- User Management Modal -->
+    <div id="userModal" class="user-modal">
+        <div class="user-modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-plus"></i> Tambah Pengguna Baru</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="newUsername">Username</label>
+                <input type="text" id="newUsername" placeholder="Masukkan username baru">
+            </div>
+            <div class="form-group">
+                <label for="newPassword">Password</label>
+                <input type="password" id="newPassword" placeholder="Masukkan password baru">
+            </div>
+            <div class="form-group">
+                <label for="newName">Nama Lengkap</label>
+                <input type="text" id="newName" placeholder="Masukkan nama lengkap">
+            </div>
+            <div class="form-group">
+                <label for="newRole">Role</label>
+                <select id="newRole">
+                    <option value="admin">Admin</option>
+                    <option value="kurir">Kurir</option>
+                </select>
+            </div>
+            <div class="form-actions">
+                <button class="btn btn-danger" id="cancelUserBtn">Batal</button>
+                <button class="btn btn-success" id="saveUserBtn">Simpan Pengguna</button>
+            </div>
+            <div id="userMessage" style="margin-top: 20px; padding: 10px; border-radius: 5px; display: none;"></div>
+        </div>
+    </div>
+    
+    <!-- Password Reset Modal -->
+    <div id="passwordModal" class="password-modal">
+        <div class="password-modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-key"></i> Ubah Kata Sandi</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="form-group">
+                <label for="currentPassword">Password Saat Ini</label>
+                <input type="password" id="currentPassword" placeholder="Masukkan password saat ini">
+            </div>
+            <div class="form-group">
+                <label for="newPasswordChange">Password Baru</label>
+                <input type="password" id="newPasswordChange" placeholder="Masukkan password baru">
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Konfirmasi Password Baru</label>
+                <input type="password" id="confirmPassword" placeholder="Konfirmasi password baru">
+            </div>
+            <button class="btn btn-success" id="savePasswordBtn">Simpan Password</button>
+            <div id="pwdMessage" style="margin-top: 15px; padding: 10px; border-radius: 5px; display: none;"></div>
+        </div>
+    </div>
+    
+    <!-- Photo Modal -->
+    <div id="photoModal" class="photo-modal">
+        <div class="photo-modal-content">
+            <span class="photo-modal-close">&times;</span>
+            <img id="modalPhoto" src="" alt="Foto Rumah">
+        </div>
+    </div>
+    
+    <!-- Main App Container -->
+    <div id="appContainer" class="app-container">
+        <div class="container">
+            <header>
+                <h1><i class="fas fa-home"></i> Manajemen Data Pembeli</h1>
+                <p class="subtitle">Data pembeli untuk penunjang kurir</p>
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">A</div>
+                    <span id="userName">Admin</span>
+                    <button class="logout-btn" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                    <button class="btn btn-warning" id="manageUsersBtn" style="margin-left: 10px;">
+                        <i class="fas fa-users"></i> Pengguna
+                    </button>
+                    <button class="btn btn-info" id="cloudSettingsBtn" style="margin-left: 10px;">
+                        <i class="fas fa-cloud"></i> Cloud
+                    </button>
+                    <button class="btn btn-success" id="changePasswordBtn" style="margin-left: 10px;">
+                        <i class="fas fa-key"></i> Password
+                    </button>
+                </div>
+            </header>
+            
+            <div class="domain-section">
+                <h3><i class="fas fa-globe"></i> Akses Online Gratis</h3>
+                <div class="domain-info">
+                    <p>Aplikasi ini dapat diakses secara online dan offline:</p>
+                    <p class="domain-url">https://manajemen-pembeli.kurir.id</p>
+                    <p>Pengguna dapat mengakses aplikasi ini melalui:</p>
+                    <ul>
+                        <li>Browser web di perangkat desktop</li>
+                        <li>Browser mobile Android/iOS</li>
+                        <li>APK offline yang bisa diunduh</li>
+                    </ul>
+                </div>
+                <div class="feature-buttons">
+                    <div class="feature-btn" id="viewOnlineBtn">
+                        <i class="fas fa-eye"></i> Lihat Online
+                    </div>
+                    <div class="feature-btn" id="shareDomainBtn">
+                        <i class="fas fa-share-alt"></i> Bagikan Domain
+                    </div>
+                    <div class="feature-btn" id="downloadSourceBtn">
+                        <i class="fas fa-download"></i> Source Code
+                    </div>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <input type="text" class="search-box" id="searchInput" placeholder="Cari nama pembeli...">
+                <button class="btn btn-primary" id="addBtn">
+                    <i class="fas fa-plus"></i> Tambah Data
+                </button>
+                <button class="btn btn-success">
+                    <i class="fas fa-download"></i> Export
+                </button>
+            </div>
+            
+            <div class="cloud-section">
+                <h3><i class="fas fa-sync-alt"></i> Sinkronisasi Cloud</h3>
+                <div class="sync-indicator">
+                    <div class="indicator" id="syncIndicatorMain"></div>
+                    <span id="syncStatusTextMain">Menunggu sinkronisasi...</span>
+                </div>
+                <div class="sync-controls">
+                    <button class="btn btn-primary" id="manualSyncMainBtn">
+                        <i class="fas fa-sync-alt"></i> Sinkronkan Sekarang
+                    </button>
+                    <button class="btn btn-info" id="viewSyncHistoryBtn">
+                        <i class="fas fa-history"></i> Riwayat
+                    </button>
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>Foto</th>
+                            <th>Nama Buyer</th>
+                            <th>Alamat</th>
+                            <th>No WhatsApp</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataBody">
+                        <!-- Data akan dimuat di sini -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="emptyState" class="empty-state">
+                <i class="fas fa-users"></i>
+                <h3>Tidak Ada Data Pembeli</h3>
+                <p>Klik tombol "Tambah Data" untuk menambahkan data pembeli</p>
+            </div>
+            
+            <footer>
+                <p>Manajemen Data Pembeli - Versi Android Optimized</p>
+                <p>© 2023 Kurir Solutions</p>
+            </footer>
+        </div>
+        
+        <!-- Modal Tambah/Edit -->
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modalTitle">Tambah Data Pembeli</h3>
+                    <button class="close-btn">&times;</button>
+                </div>
+                <form id="dataForm">
+                    <input type="hidden" id="buyerId">
+                    <div class="form-group">
+                        <label for="name">Nama Pembeli</label>
+                        <input type="text" id="name" required placeholder="Masukkan nama pembeli">
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Alamat</label>
+                        <textarea id="address" rows="3" required placeholder="Masukkan alamat lengkap"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="whatsappNumber">Nomor WhatsApp</label>
+                        <input type="text" id="whatsappNumber" placeholder="Masukkan nomor WhatsApp">
+                    </div>
+                    <div class="form-group">
+                        <label for="photo">Foto Rumah</label>
+                        <input type="file" id="photo" accept="image/*">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-danger" id="cancelBtn">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
